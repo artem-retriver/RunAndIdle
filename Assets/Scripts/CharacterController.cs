@@ -7,7 +7,9 @@ public class CharacterController : MonoBehaviour
 {
     [Header("Manager:")]
     //[SerializeField] private GameManager _gameManager;
-    private Animator anim;
+    //private Animator anim;
+    public GameObject joystick;
+    public GameObject[] cameraCharacter;
     private MoveController moveController;
     public TextMeshProUGUI countCoinsText;
     //public AudioSource sourceFishBone;
@@ -18,7 +20,7 @@ public class CharacterController : MonoBehaviour
 
     private void Start()
     {
-        anim = GetComponent<Animator>();
+        //anim = GetComponent<Animator>();
         moveController = GetComponent<MoveController>();
         isAlive = true;
         //IsAlive();
@@ -80,6 +82,18 @@ other.gameObject.SetActive(false);
         {
             countCoins++;
             other.gameObject.SetActive(false);
+        }
+
+        if (other.GetComponent<IdleZone>())
+        {
+            cameraCharacter[0].gameObject.SetActive(true);
+            cameraCharacter[1].gameObject.SetActive(false);
+            joystick.SetActive(true);
+
+            GetComponent<MoveController>().enabled = false;
+            GetComponent<SwipeController>().enabled = false;
+            GetComponent<JoystickController>().enabled = true;
+            GetComponent<CharacterController>().enabled = false;
         }
     }
 
