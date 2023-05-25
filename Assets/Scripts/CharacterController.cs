@@ -2,33 +2,51 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using DG.Tweening;
 
 public class CharacterController : MonoBehaviour
 {
     [Header("Manager:")]
-    //[SerializeField] private GameManager _gameManager;
-    //private Animator anim;
+    public GameObject[] fabrikaObject;
+    public GameObject[] fvxObjects;
+    public GameObject[] coinsShop;
     public GameObject joystick;
+    public GameObject startPos;
     public GameObject[] cameraCharacter;
+    public GameObject[] objectCoins;
+    public Vector3[] objectCoinsPosition;
     private MoveController moveController;
-    public TextMeshProUGUI countCoinsText;
-    //public AudioSource sourceFishBone;
-    //public AudioSource sourceSmash;
+    public TextMeshProUGUI[] countCoinsText;
 
-    private int countCoins;
-    private bool isAlive = false;
+    public int countCoins;
+    public int countCoinsShop = 10;
+    private bool isAlive;
 
     private void Start()
     {
-        //anim = GetComponent<Animator>();
         moveController = GetComponent<MoveController>();
+
         isAlive = true;
-        //IsAlive();
     }
 
     public void Update()
     {
-        if (isAlive == true)
+        countCoinsText[0].text = countCoins.ToString();
+        countCoinsText[1].text = countCoinsShop.ToString();
+
+        if (countCoinsShop == 0)
+        {
+            fabrikaObject[0].transform.DOMoveY(0, 3);
+            fvxObjects[0].SetActive(true);
+            StartCoroutine(WaitCloseFvx());
+        }
+
+        for (int i = 0; i < objectCoinsPosition.Length; i++)
+        {
+            objectCoinsPosition[i] = objectCoins[i].transform.position;
+        }
+
+        if (isAlive == true && GetComponent<JoystickController>().enabled == false)
         {
             moveController.InputHandler();
             moveController.Movebale();
@@ -39,8 +57,6 @@ public class CharacterController : MonoBehaviour
 
     public void FixedUpdate()
     {
-        countCoinsText.text = countCoins.ToString();
-
         if (isAlive == true)
         {
             moveController.Move();
@@ -52,30 +68,12 @@ public class CharacterController : MonoBehaviour
         return;
     }
 
-    public void IsAlive()
-    {
-        StartCoroutine(WaitGameCoroutine());
-    }
-
-    /*public void Initialize(GameManager gameManager)
-    {
-        _gameManager = gameManager;
-    }*/
-
     private void OnTriggerEnter(Collider other)
     {
-        /*if (other.TryGetComponent(out Fish fish))
-{
-sourceFishBone.Play();
-_gameManager.IncreaseCoins();
-other.gameObject.SetActive(false);
-}*/
-
+        
         if (other.TryGetComponent(out Obstacle _))
         {
-            //sourceSmash.Play();
             Died();
-            //StartCoroutine(WaitLoseCoroutine());
         }
 
         if (other.GetComponent<Coin>())
@@ -86,33 +84,61 @@ other.gameObject.SetActive(false);
 
         if (other.GetComponent<IdleZone>())
         {
-            cameraCharacter[0].gameObject.SetActive(true);
-            cameraCharacter[1].gameObject.SetActive(false);
+            StartCoroutine(WaitIdleZone());
+            /*for (int i = 0; i < countCoins; i++)
+            {
+                objectCoins[i].SetActive(true);
+                objectCoins[i].transform.position = cameraCharacter[0].transform.position;
+                objectCoins[i].transform.DOMove(objectCoinsPosition[i], 1);
+            }*/
+
+            cameraCharacter[0].SetActive(true);
+            cameraCharacter[1].SetActive(false);
             joystick.SetActive(true);
 
-            GetComponent<MoveController>().enabled = false;
-            GetComponent<SwipeController>().enabled = false;
             GetComponent<JoystickController>().enabled = true;
-            GetComponent<CharacterController>().enabled = false;
+            other.gameObject.SetActive(false);
+        }
+
+        if (other.GetComponent<CoinsShop>())
+        {
+            StartCoroutine(WaitFalseCoins());
         }
     }
 
     private void Died()
     {
         isAlive = false;
-        //anim.Play("Death_1");
     }
 
-    private IEnumerator WaitLoseCoroutine()
+    private IEnumerator WaitCloseFvx()
     {
-        yield return new WaitForSeconds(3f);
-        //_gameManager.LoseGame();
+        yield return new WaitForSeconds(4f);
+        fvxObjects[0].SetActive(false);
     }
 
-    private IEnumerator WaitGameCoroutine()
+    private IEnumerator WaitIdleZone()
     {
-        yield return new WaitForSeconds(3f);
-        isAlive = true;
-        //.Play("runStart");
+        for (int i = 0; i < countCoins; i++)
+        {
+            objectCoins[i].SetActive(true);
+            objectCoins[i].transform.position = startPos.transform.position;
+            objectCoins[i].transform.DOMove(objectCoinsPosition[i], 1);
+
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
+
+    private IEnumerator WaitFalseCoins()
+    {
+        for (int i = 0; i < objectCoins.Length; i++)
+        {
+            if (countCoinsShop > 1)
+            {
+                objectCoins[i].transform.DOMove(coinsShop[0].transform.position, 0.4f);
+
+                yield return new WaitForSeconds(0.2f);
+            }
+        }
     }
 }
