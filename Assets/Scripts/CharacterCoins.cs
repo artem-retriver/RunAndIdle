@@ -9,7 +9,7 @@ public class CharacterCoins : MonoBehaviour
         if (other.GetComponent<CoinsShop>())
         {
             GetComponentInParent<CharacterController>().countCoins--;
-            GetComponentInParent<CharacterController>().countCoinsShop--;
+            GetComponentInParent<CharacterController>().countCoinsElectro--;
             gameObject.SetActive(false);
         }
     }

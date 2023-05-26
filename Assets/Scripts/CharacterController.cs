@@ -7,6 +7,7 @@ using DG.Tweening;
 public class CharacterController : MonoBehaviour
 {
     [Header("Manager:")]
+    public GameObject[] canvas;
     public GameObject[] fabrikaObject;
     public GameObject[] fvxObjects;
     public GameObject[] coinsShop;
@@ -19,8 +20,10 @@ public class CharacterController : MonoBehaviour
     public TextMeshProUGUI[] countCoinsText;
 
     public int countCoins;
-    public int countCoinsShop = 10;
+    public int countCoinsElectro = 10;
+    public int countCoinsNeft = 10;
     private bool isAlive;
+    private bool isFvxOn = true;
 
     private void Start()
     {
@@ -32,13 +35,17 @@ public class CharacterController : MonoBehaviour
     public void Update()
     {
         countCoinsText[0].text = countCoins.ToString();
-        countCoinsText[1].text = countCoinsShop.ToString();
+        countCoinsText[1].text = countCoinsElectro.ToString();
 
-        if (countCoinsShop == 0)
+        if (countCoinsElectro == 0)
         {
             fabrikaObject[0].transform.DOMoveY(0, 3);
-            fvxObjects[0].SetActive(true);
-            StartCoroutine(WaitCloseFvx());
+            if (isFvxOn == true)
+            {
+                fvxObjects[0].SetActive(true);
+                StartCoroutine(WaitCloseFvx());
+            }
+
         }
 
         for (int i = 0; i < objectCoinsPosition.Length; i++)
@@ -69,8 +76,7 @@ public class CharacterController : MonoBehaviour
     }
 
     private void OnTriggerEnter(Collider other)
-    {
-        
+    {        
         if (other.TryGetComponent(out Obstacle _))
         {
             Died();
@@ -115,6 +121,11 @@ public class CharacterController : MonoBehaviour
     {
         yield return new WaitForSeconds(4f);
         fvxObjects[0].SetActive(false);
+        isFvxOn = false;
+        fvxObjects[1].SetActive(true);
+        fvxObjects[2].SetActive(true);
+        canvas[0].SetActive(false);
+        canvas[1].SetActive(true);
     }
 
     private IEnumerator WaitIdleZone()
@@ -133,7 +144,7 @@ public class CharacterController : MonoBehaviour
     {
         for (int i = 0; i < objectCoins.Length; i++)
         {
-            if (countCoinsShop > 1)
+            if (countCoinsElectro > 1)
             {
                 objectCoins[i].transform.DOMove(coinsShop[0].transform.position, 0.4f);
 

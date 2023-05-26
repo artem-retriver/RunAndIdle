@@ -36,11 +36,11 @@ public class MoveController : MonoBehaviour
     {
         if (SwipeController.swipeLeft)
         {
-            ChangeLane(-2.5f);
+            ChangeLane(-3f);
         }
         else if (SwipeController.swipeRight)
         {
-            ChangeLane(2.5f);
+            ChangeLane(3f);
         }
         else if (SwipeController.swipeUp)
         {
@@ -76,7 +76,7 @@ public class MoveController : MonoBehaviour
         if (sliding)
         {
             float ratio = (transform.position.z - slideStart) / slideLenght;
-            if (ratio >= 3f)
+            if (ratio >= 2f)
             {
 
                 sliding = false;
@@ -87,7 +87,7 @@ public class MoveController : MonoBehaviour
             }
         }
 
-        Vector3 targetPosition = new Vector3(verticalTargetPosition.x, verticalTargetPosition.y, transform.position.z);
+        Vector3 targetPosition = new(verticalTargetPosition.x, verticalTargetPosition.y, transform.position.z);
         transform.position = Vector3.MoveTowards(transform.position, targetPosition, laneSpeed * Time.deltaTime);
     }
 
@@ -105,7 +105,7 @@ public class MoveController : MonoBehaviour
     {
         float targetLane = currentLane + direction;
 
-        if (targetLane < -3 || targetLane > 4)
+        if (targetLane < -4 || targetLane > 5)
             return;
 
         currentLane = targetLane;
