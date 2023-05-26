@@ -21,6 +21,7 @@ public class MoveController : MonoBehaviour
     private bool sliding = false;
     private float slideStart;
     private Vector3 boxColliderSize;
+    private Vector3 boxColliderCenter;
 
     private void Start()
     {
@@ -28,6 +29,7 @@ public class MoveController : MonoBehaviour
         anim = GetComponent<Animator>();
         boxCollider = GetComponent<BoxCollider>();
         boxColliderSize = boxCollider.size;
+        boxColliderCenter = boxCollider.center;
     }
 
     public void InputHandler()
@@ -58,7 +60,7 @@ public class MoveController : MonoBehaviour
             if (ratio >= 1f)
             {
                 jumping = false;
-                anim.Play("Running");
+                anim.SetTrigger("Running");
                 //anim.SetBool("Jumping", false);
             }
             else
@@ -74,12 +76,14 @@ public class MoveController : MonoBehaviour
         if (sliding)
         {
             float ratio = (transform.position.z - slideStart) / slideLenght;
-            if (ratio >= 2f)
+            if (ratio >= 3f)
             {
 
                 sliding = false;
+                anim.SetTrigger("Running");
                 //anim.SetBool("Sliding", false);
                 boxCollider.size = boxColliderSize;
+                boxCollider.center = boxColliderCenter;
             }
         }
 
@@ -114,7 +118,7 @@ public class MoveController : MonoBehaviour
         {
             jumpStart = transform.position.z;
             //anim.SetFloat("JumpSpeed", speed / jumpLenght);
-            anim.Play("Jumping");
+            anim.SetTrigger("Jumping");
 
             jumping = true;
         }
@@ -127,9 +131,13 @@ public class MoveController : MonoBehaviour
             slideStart = transform.position.z;
             //anim.SetFloat("JumpSpeed", speed / slideLenght);
             //anim.SetBool("Sliding", true);
+            anim.SetTrigger("Slide");
             Vector3 newSize = boxCollider.size;
-            newSize.y = newSize.y / 2;
+            Vector3 newCenter = boxCollider.center;
+            newSize.y /= 2;
+            newCenter.y /= 2;
             boxCollider.size = newSize;
+            boxCollider.center = newCenter;
             sliding = true;
         }
     }
