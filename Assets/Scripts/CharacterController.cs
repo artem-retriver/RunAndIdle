@@ -19,11 +19,16 @@ public class CharacterController : MonoBehaviour
     private MoveController moveController;
     public TextMeshProUGUI[] countCoinsText;
 
+    public ElectroPos electroPos;
+    public ElectroSpawn electroSpawn;
+
     public int countCoins;
-    public int countCoinsElectro = 10;
-    public int countCoinsNeft = 10;
+    public int countElectro;
+    public int countCoinsShop = 10;
+    public int countElectroShop;
     private bool isAlive;
     private bool isFvxOn = true;
+    private bool isElecetroOn;
 
     private void Start()
     {
@@ -35,9 +40,11 @@ public class CharacterController : MonoBehaviour
     public void Update()
     {
         countCoinsText[0].text = countCoins.ToString();
-        countCoinsText[1].text = countCoinsElectro.ToString();
+        countCoinsText[1].text = countCoinsShop.ToString();
+        countCoinsText[2].text = countElectroShop.ToString();
+        countCoinsText[3].text = countElectro.ToString();
 
-        if (countCoinsElectro == 0)
+        if (countCoinsShop == 0)
         {
             fabrikaObject[0].transform.DOMoveY(0, 3);
             if (isFvxOn == true)
@@ -45,7 +52,11 @@ public class CharacterController : MonoBehaviour
                 fvxObjects[0].SetActive(true);
                 StartCoroutine(WaitCloseFvx());
             }
+        }
 
+        if (electroPos.countFullPos < 16 && isElecetroOn == true)
+        {
+            StartCoroutine(WaitEelectroPos());
         }
 
         for (int i = 0; i < objectCoinsPosition.Length; i++)
@@ -76,7 +87,14 @@ public class CharacterController : MonoBehaviour
     }
 
     private void OnTriggerEnter(Collider other)
-    {        
+    {
+        if (other.GetComponent<Electro>())
+        {
+            other.gameObject.transform.DOMove(objectCoinsPosition[0], 1);
+            countElectro++;
+
+        }
+
         if (other.TryGetComponent(out Obstacle _))
         {
             Died();
@@ -91,12 +109,6 @@ public class CharacterController : MonoBehaviour
         if (other.GetComponent<IdleZone>())
         {
             StartCoroutine(WaitIdleZone());
-            /*for (int i = 0; i < countCoins; i++)
-            {
-                objectCoins[i].SetActive(true);
-                objectCoins[i].transform.position = cameraCharacter[0].transform.position;
-                objectCoins[i].transform.DOMove(objectCoinsPosition[i], 1);
-            }*/
 
             cameraCharacter[0].SetActive(true);
             cameraCharacter[1].SetActive(false);
@@ -125,7 +137,21 @@ public class CharacterController : MonoBehaviour
         fvxObjects[1].SetActive(true);
         fvxObjects[2].SetActive(true);
         canvas[0].SetActive(false);
-        canvas[1].SetActive(true);
+        //canvas[1].SetActive(true);
+        canvas[2].SetActive(true);
+        canvas[3].SetActive(true);
+        isElecetroOn = true;
+    }
+
+    private IEnumerator WaitEelectroPos()
+    {
+        for (int i = 0; i < electroSpawn.electroSpawnList.Count; i++)
+        {
+            electroSpawn.electroSpawnList[i].SetActive(true);
+            electroSpawn.electroSpawnList[i].transform.DOMove(electroPos.electroPos[i].transform.position, 1);
+            electroPos.countFullPos++;
+            yield return new WaitForSeconds(1f);
+        }
     }
 
     private IEnumerator WaitIdleZone()
@@ -144,7 +170,7 @@ public class CharacterController : MonoBehaviour
     {
         for (int i = 0; i < objectCoins.Length; i++)
         {
-            if (countCoinsElectro > 1)
+            if (countCoinsShop > 1)
             {
                 objectCoins[i].transform.DOMove(coinsShop[0].transform.position, 0.4f);
 
