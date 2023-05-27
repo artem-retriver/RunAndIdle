@@ -4,6 +4,6 @@ using UnityEngine;
 
 public class ElectroPos : MonoBehaviour
 {
-    public List<GameObject> electroPos = new List<GameObject>();
+    public List<GameObject> electroPos = new();
     public int countFullPos;
 }

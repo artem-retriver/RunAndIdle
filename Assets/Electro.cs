@@ -4,15 +4,26 @@ using UnityEngine;
 
 public class Electro : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public bool isOnCharacter;
+    public bool isAlready;
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerEnter(Collider other)
     {
+        if (other.GetComponent<ShopNeft>())
+        {
+            GetComponentInParent<CharacterController>().countElectro--;
+            GetComponentInParent<CharacterController>().countNeftShop--;
+            gameObject.SetActive(false);
+        }
+
+        if (isAlready) return;
+
+        if (other.TryGetComponent(out CharacterController character))
+        {
+            character.AddNewItemElectro(this.transform);
+            isAlready = true;
+        }
+
         
     }
 }

@@ -7,6 +7,9 @@ using DG.Tweening;
 public class CharacterController : MonoBehaviour
 {
     [Header("Manager:")]
+    public Transform PositionElectro;
+    public List<GameObject> objectElectro = new();
+    public List<GameObject> objectNeft = new();
     public GameObject[] canvas;
     public GameObject[] fabrikaObject;
     public GameObject[] fvxObjects;
@@ -15,20 +18,30 @@ public class CharacterController : MonoBehaviour
     public GameObject startPos;
     public GameObject[] cameraCharacter;
     public GameObject[] objectCoins;
-    public Vector3[] objectCoinsPosition;
+    public GameObject[] objectCoinsPosition;
     private MoveController moveController;
     public TextMeshProUGUI[] countCoinsText;
 
     public ElectroPos electroPos;
     public ElectroSpawn electroSpawn;
 
+    public NeftPos neftPos;
+    public NeftSpawn neftSpawn;
+
     public int countCoins;
     public int countElectro;
+    public int countNeft;
     public int countCoinsShop = 10;
     public int countElectroShop;
+    public int countNeftShop = 10;
+    public int numOfHoldElectro;
+    public int numOfHoldNeft;
+
     private bool isAlive;
     private bool isFvxOn = true;
-    private bool isElecetroOn;
+    private bool isFvxOnNeft = true;
+    public bool isElecetroOn;
+    public bool isNeftOn;
 
     private void Start()
     {
@@ -43,6 +56,8 @@ public class CharacterController : MonoBehaviour
         countCoinsText[1].text = countCoinsShop.ToString();
         countCoinsText[2].text = countElectroShop.ToString();
         countCoinsText[3].text = countElectro.ToString();
+        countCoinsText[4].text = countNeftShop.ToString();
+        countCoinsText[5].text = countNeft.ToString();
 
         if (countCoinsShop == 0)
         {
@@ -54,14 +69,24 @@ public class CharacterController : MonoBehaviour
             }
         }
 
-        if (electroPos.countFullPos < 16 && isElecetroOn == true)
+        if (countNeftShop == 0)
+        {
+            fabrikaObject[1].transform.DOMoveY(-1.82f, 3);
+            if (isFvxOnNeft == true)
+            {
+                fvxObjects[3].SetActive(true);
+                StartCoroutine(WaitCloseFvxNeft());
+            }
+        }
+
+        if (isElecetroOn == true)
         {
             StartCoroutine(WaitEelectroPos());
         }
 
-        for (int i = 0; i < objectCoinsPosition.Length; i++)
+        if (isNeftOn == true)
         {
-            objectCoinsPosition[i] = objectCoins[i].transform.position;
+            StartCoroutine(WaitNeftPos());
         }
 
         if (isAlive == true && GetComponent<JoystickController>().enabled == false)
@@ -88,13 +113,6 @@ public class CharacterController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<Electro>())
-        {
-            other.gameObject.transform.DOMove(objectCoinsPosition[0], 1);
-            countElectro++;
-
-        }
-
         if (other.TryGetComponent(out Obstacle _))
         {
             Died();
@@ -112,7 +130,7 @@ public class CharacterController : MonoBehaviour
 
             cameraCharacter[0].SetActive(true);
             cameraCharacter[1].SetActive(false);
-            joystick.SetActive(true);
+            
 
             GetComponent<JoystickController>().enabled = true;
             other.gameObject.SetActive(false);
@@ -122,11 +140,75 @@ public class CharacterController : MonoBehaviour
         {
             StartCoroutine(WaitFalseCoins());
         }
+
+        if (other.GetComponent<ShopNeft>())
+        {
+            StartCoroutine(WaitFalseElectro());
+        }
+    }
+
+    public void AddNewItemElectro(Transform itemAdd)
+    {
+        itemAdd.DOMove(PositionElectro.position, 0.3f).OnComplete(() =>
+        {
+            itemAdd.SetParent(PositionElectro, true);
+            objectElectro.Add(itemAdd.gameObject);
+
+            if (numOfHoldElectro > 10)
+            {
+                itemAdd.localPosition = new Vector3(0.2f, 0.2f * (numOfHoldElectro - 10), 0);
+            }
+            else
+            {
+                itemAdd.localPosition = new Vector3(-0.2f, 0.2f * numOfHoldElectro, 0);
+            }
+            
+            itemAdd.localRotation = Quaternion.identity;
+            numOfHoldElectro++;
+            countElectro++;
+        });
+    }
+
+    public void AddNewItemNeft(Transform itemAdd)
+    {
+        itemAdd.DOMove(PositionElectro.position, 0.3f).OnComplete(() =>
+        {
+            itemAdd.SetParent(PositionElectro, true);
+            objectNeft.Add(itemAdd.gameObject);
+
+            if (numOfHoldNeft > 5)
+            {
+                itemAdd.localPosition = new Vector3(0.2f, 0.2f * (numOfHoldNeft - 5), 0);
+            }
+            else
+            {
+                itemAdd.localPosition = new Vector3(-0.2f, 0.2f * numOfHoldNeft, 0);
+            }
+
+            itemAdd.localRotation = Quaternion.identity;
+            numOfHoldNeft++;
+            countNeft++;
+        });
     }
 
     private void Died()
     {
         isAlive = false;
+    }
+
+    private IEnumerator WaitCloseFvxNeft()
+    {
+        yield return new WaitForSeconds(4f);
+        fvxObjects[3].SetActive(false);
+        isFvxOnNeft = false;
+        fvxObjects[4].SetActive(true);
+        fvxObjects[5].SetActive(true);
+        canvas[4].SetActive(false);
+        
+        canvas[5].SetActive(true);
+        canvas[6].SetActive(true);
+        isNeftOn = true;
+        //isElecetroOn = true;
     }
 
     private IEnumerator WaitCloseFvx()
@@ -137,21 +219,35 @@ public class CharacterController : MonoBehaviour
         fvxObjects[1].SetActive(true);
         fvxObjects[2].SetActive(true);
         canvas[0].SetActive(false);
-        //canvas[1].SetActive(true);
         canvas[2].SetActive(true);
         canvas[3].SetActive(true);
         isElecetroOn = true;
+    }
+
+    private IEnumerator WaitNeftPos()
+    {
+        for (int i = 0; i < neftSpawn.neftSpawnList.Count; i++)
+        {
+            neftSpawn.neftSpawnList[i].gameObject.SetActive(true);
+
+            neftSpawn.neftSpawnList[i].gameObject.transform.DOMove(neftPos.neftPos[i].transform.position, 0.3f);
+            yield return new WaitForSeconds(0.3f);
+        }
+
+        isNeftOn = false;
     }
 
     private IEnumerator WaitEelectroPos()
     {
         for (int i = 0; i < electroSpawn.electroSpawnList.Count; i++)
         {
-            electroSpawn.electroSpawnList[i].SetActive(true);
-            electroSpawn.electroSpawnList[i].transform.DOMove(electroPos.electroPos[i].transform.position, 1);
-            electroPos.countFullPos++;
-            yield return new WaitForSeconds(1f);
+            electroSpawn.electroSpawnList[i].gameObject.SetActive(true);
+
+            electroSpawn.electroSpawnList[i].gameObject.transform.DOMove(electroPos.electroPos[i].transform.position, 0.3f);
+            yield return new WaitForSeconds(0.3f);
         }
+
+        isElecetroOn = false;
     }
 
     private IEnumerator WaitIdleZone()
@@ -160,20 +256,33 @@ public class CharacterController : MonoBehaviour
         {
             objectCoins[i].SetActive(true);
             objectCoins[i].transform.position = startPos.transform.position;
-            objectCoins[i].transform.DOMove(objectCoinsPosition[i], 1);
+            objectCoins[i].transform.DOMove(objectCoinsPosition[i].transform.position, 0.5f);
 
             yield return new WaitForSeconds(0.2f);
         }
+
+        joystick.SetActive(true);
     }
 
     private IEnumerator WaitFalseCoins()
     {
         for (int i = 0; i < objectCoins.Length; i++)
         {
-            if (countCoinsShop > 1)
+            if (countCoinsShop > 0)
             {
-                objectCoins[i].transform.DOMove(coinsShop[0].transform.position, 0.4f);
+                objectCoins[i].transform.DOMove(coinsShop[0].transform.position, 0.2f);
+                yield return new WaitForSeconds(0.2f);
+            }
+        }
+    }
 
+    private IEnumerator WaitFalseElectro()
+    {
+        for (int i = 0; i < objectElectro.Count; i++)
+        {
+            if (countNeftShop > 0)
+            {
+                objectElectro[i].transform.DOMove(coinsShop[1].transform.position, 0.2f);
                 yield return new WaitForSeconds(0.2f);
             }
         }

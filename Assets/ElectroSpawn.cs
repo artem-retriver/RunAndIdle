@@ -5,8 +5,8 @@ using DG.Tweening;
 
 public class ElectroSpawn : MonoBehaviour
 {
-    public GameObject electro;
-    public List<GameObject> electroSpawnList = new List<GameObject>();
+    public Electro electro;
+    public List<Electro> electroSpawnList = new();
 
     private void Update()
     {
