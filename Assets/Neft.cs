@@ -8,6 +8,13 @@ public class Neft : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.GetComponent<ClotherShop>())
+        {
+            GetComponentInParent<CharacterController>().countNeft--;
+            GetComponentInParent<CharacterController>().clotherShopNeft--;
+            gameObject.SetActive(false);
+        }
+
         if (isAlready) return;
 
         if (other.TryGetComponent(out CharacterController character))
@@ -15,7 +22,5 @@ public class Neft : MonoBehaviour
             character.AddNewItemNeft(this.transform);
             isAlready = true;
         }
-
-
     }
 }

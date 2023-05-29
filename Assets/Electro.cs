@@ -16,6 +16,13 @@ public class Electro : MonoBehaviour
             gameObject.SetActive(false);
         }
 
+        if (other.GetComponent<ClotherShop>())
+        {
+            GetComponentInParent<CharacterController>().countElectro--;
+            GetComponentInParent<CharacterController>().clotherShopElectro--;
+            gameObject.SetActive(false);
+        }
+
         if (isAlready) return;
 
         if (other.TryGetComponent(out CharacterController character))

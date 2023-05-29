@@ -7,6 +7,7 @@ using DG.Tweening;
 public class CharacterController : MonoBehaviour
 {
     [Header("Manager:")]
+    public GameObject[] clotherCharacter;
     public Transform PositionElectro;
     public List<GameObject> objectElectro = new();
     public List<GameObject> objectNeft = new();
@@ -37,9 +38,14 @@ public class CharacterController : MonoBehaviour
     public int numOfHoldElectro;
     public int numOfHoldNeft;
 
+    public int clotherShopPopcorn;
+    public int clotherShopElectro;
+    public int clotherShopNeft;
+
     private bool isAlive;
     private bool isFvxOn = true;
     private bool isFvxOnNeft = true;
+    private bool isFvxOnClotherShop = true;
     public bool isElecetroOn;
     public bool isNeftOn;
 
@@ -58,6 +64,20 @@ public class CharacterController : MonoBehaviour
         countCoinsText[3].text = countElectro.ToString();
         countCoinsText[4].text = countNeftShop.ToString();
         countCoinsText[5].text = countNeft.ToString();
+
+        countCoinsText[6].text = clotherShopPopcorn.ToString();
+        countCoinsText[7].text = clotherShopElectro.ToString();
+        countCoinsText[8].text = clotherShopNeft.ToString();
+
+        if (clotherShopPopcorn == 0 && clotherShopElectro == 0 && clotherShopNeft == 0)
+        {
+            fabrikaObject[2].transform.DOMoveY(0, 3);
+            if (isFvxOnClotherShop == true)
+            {
+                fvxObjects[6].SetActive(true);
+                StartCoroutine(WaitCloseFvxClotherShop());
+            }
+        }
 
         if (countCoinsShop == 0)
         {
@@ -145,11 +165,18 @@ public class CharacterController : MonoBehaviour
         {
             StartCoroutine(WaitFalseElectro());
         }
+
+        if (other.GetComponent<ClotherShop>())
+        {
+            StartCoroutine(WaitLoseAllPopcorn());
+            StartCoroutine(WaitLoseAllElectro());
+            StartCoroutine(WaitLoseAllNeft());
+        }
     }
 
     public void AddNewItemElectro(Transform itemAdd)
     {
-        itemAdd.DOMove(PositionElectro.position, 0.3f).OnComplete(() =>
+        itemAdd.DOJump(PositionElectro.position + new Vector3(0, 0.2f, 0), 1.5f, 1, 0.1f).OnComplete(() =>
         {
             itemAdd.SetParent(PositionElectro, true);
             objectElectro.Add(itemAdd.gameObject);
@@ -171,7 +198,7 @@ public class CharacterController : MonoBehaviour
 
     public void AddNewItemNeft(Transform itemAdd)
     {
-        itemAdd.DOMove(PositionElectro.position, 0.3f).OnComplete(() =>
+        itemAdd.DOJump(PositionElectro.position + new Vector3(0, 0.2f, 0), 1.5f, 1, 0.1f).OnComplete(() =>
         {
             itemAdd.SetParent(PositionElectro, true);
             objectNeft.Add(itemAdd.gameObject);
@@ -196,9 +223,20 @@ public class CharacterController : MonoBehaviour
         isAlive = false;
     }
 
+    private IEnumerator WaitCloseFvxClotherShop()
+    {
+        yield return new WaitForSeconds(3f);
+        fvxObjects[6].SetActive(false);
+        isFvxOnClotherShop = false;
+        canvas[7].SetActive(false);
+
+        clotherCharacter[0].SetActive(false);
+        clotherCharacter[1].SetActive(true);
+    }
+
     private IEnumerator WaitCloseFvxNeft()
     {
-        yield return new WaitForSeconds(4f);
+        yield return new WaitForSeconds(3f);
         fvxObjects[3].SetActive(false);
         isFvxOnNeft = false;
         fvxObjects[4].SetActive(true);
@@ -213,7 +251,7 @@ public class CharacterController : MonoBehaviour
 
     private IEnumerator WaitCloseFvx()
     {
-        yield return new WaitForSeconds(4f);
+        yield return new WaitForSeconds(3f);
         fvxObjects[0].SetActive(false);
         isFvxOn = false;
         fvxObjects[1].SetActive(true);
@@ -230,8 +268,8 @@ public class CharacterController : MonoBehaviour
         {
             neftSpawn.neftSpawnList[i].gameObject.SetActive(true);
 
-            neftSpawn.neftSpawnList[i].gameObject.transform.DOMove(neftPos.neftPos[i].transform.position, 0.3f);
-            yield return new WaitForSeconds(0.3f);
+            neftSpawn.neftSpawnList[i].gameObject.transform.DOMove(neftPos.neftPos[i].transform.position, 0.1f);
+            yield return new WaitForSeconds(0.1f);
         }
 
         isNeftOn = false;
@@ -243,8 +281,8 @@ public class CharacterController : MonoBehaviour
         {
             electroSpawn.electroSpawnList[i].gameObject.SetActive(true);
 
-            electroSpawn.electroSpawnList[i].gameObject.transform.DOMove(electroPos.electroPos[i].transform.position, 0.3f);
-            yield return new WaitForSeconds(0.3f);
+            electroSpawn.electroSpawnList[i].gameObject.transform.DOMove(electroPos.electroPos[i].transform.position, 0.1f);
+            yield return new WaitForSeconds(0.1f);
         }
 
         isElecetroOn = false;
@@ -252,38 +290,77 @@ public class CharacterController : MonoBehaviour
 
     private IEnumerator WaitIdleZone()
     {
-        for (int i = 0; i < countCoins; i++)
+        int currentCoins = countCoins;
+        for (int i = 0; i < currentCoins; i++)
         {
             objectCoins[i].SetActive(true);
             objectCoins[i].transform.position = startPos.transform.position;
-            objectCoins[i].transform.DOMove(objectCoinsPosition[i].transform.position, 0.5f);
-
-            yield return new WaitForSeconds(0.2f);
+            objectCoins[i].transform.DOMove(objectCoinsPosition[i].transform.position, 0.1f);
+            countCoins--;
+            yield return new WaitForSeconds(0.1f);
         }
 
         joystick.SetActive(true);
     }
 
+    private IEnumerator WaitLoseAllPopcorn()
+    {
+        for (int i = objectCoins.Length - 1; i > -1; i--)
+        {
+            if (clotherShopPopcorn > 0)
+            {
+                objectCoins[i].transform.DOMove(coinsShop[2].transform.position, 0.1f);
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+    }
+
+    private IEnumerator WaitLoseAllNeft()
+    {
+        for (int i = objectNeft.Count - 1; i > -1; i--)
+        {
+            if (clotherShopNeft > 0)
+            {
+                objectNeft[i].transform.DOMove(coinsShop[2].transform.position, 0.1f);
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+    }
+
+    private IEnumerator WaitLoseAllElectro()
+    {
+        for (int i = objectElectro.Count - 1; i > -1; i--)
+        {
+            if (clotherShopElectro > 0)
+            {
+                objectElectro[i].transform.DOMove(coinsShop[2].transform.position, 0.1f);
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+    }
+
     private IEnumerator WaitFalseCoins()
     {
-        for (int i = 0; i < objectCoins.Length; i++)
+        for (int i = objectCoins.Length - 1; i > 0; i--)
         {
             if (countCoinsShop > 0)
             {
-                objectCoins[i].transform.DOMove(coinsShop[0].transform.position, 0.2f);
-                yield return new WaitForSeconds(0.2f);
+                objectCoins[i].transform.DOMove(coinsShop[0].transform.position, 0.1f);
+                
             }
+
+            yield return new WaitForSeconds(0.1f);
         }
     }
 
     private IEnumerator WaitFalseElectro()
     {
-        for (int i = 0; i < objectElectro.Count; i++)
+        for (int i = objectElectro.Count - 1; i > 0; i--)
         {
             if (countNeftShop > 0)
             {
-                objectElectro[i].transform.DOMove(coinsShop[1].transform.position, 0.2f);
-                yield return new WaitForSeconds(0.2f);
+                objectElectro[i].transform.DOMove(coinsShop[1].transform.position, 0.1f);
+                yield return new WaitForSeconds(0.1f);
             }
         }
     }
