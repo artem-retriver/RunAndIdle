@@ -30,7 +30,5 @@ public class Electro : MonoBehaviour
             character.AddNewItemElectro(this.transform);
             isAlready = true;
         }
-
-        
     }
 }
