@@ -71,6 +71,7 @@ public class CharacterController : MonoBehaviour
 
         if (clotherShopPopcorn == 0 && clotherShopElectro == 0 && clotherShopNeft == 0)
         {
+            canvas[10].SetActive(false);
             fabrikaObject[2].transform.DOMoveY(0, 3);
             if (isFvxOnClotherShop == true)
             {
@@ -81,6 +82,7 @@ public class CharacterController : MonoBehaviour
 
         if (countCoinsShop == 0)
         {
+            canvas[8].SetActive(false);
             fabrikaObject[0].transform.DOMoveY(0, 3);
             if (isFvxOn == true)
             {
@@ -91,7 +93,8 @@ public class CharacterController : MonoBehaviour
 
         if (countNeftShop == 0)
         {
-            fabrikaObject[1].transform.DOMoveY(-1.82f, 3);
+            canvas[9].SetActive(false);
+            fabrikaObject[1].transform.DOMoveY(-1.49f, 3);
             if (isFvxOnNeft == true)
             {
                 fvxObjects[3].SetActive(true);
@@ -154,8 +157,8 @@ public class CharacterController : MonoBehaviour
             StartCoroutine(WaitIdleZone());
 
             cameraCharacter[1].GetComponent<CameraController>().isIdleCamera = true;
-            cameraCharacter[1].transform.DOMove(new Vector3(2.3f, 17.4f, 190.6f), 2f);
-            cameraCharacter[1].transform.DOLocalRotate(new Vector3(55, -11.382f, 0), 2f);
+            cameraCharacter[1].transform.DOMove(new Vector3(1f, 7.73f, 213.86f), 1f);
+            cameraCharacter[1].transform.DOLocalRotate(new Vector3(55, -11.382f, 0), 1f);
             //cameraCharacter[1].SetActive(false);
 
 
@@ -165,7 +168,10 @@ public class CharacterController : MonoBehaviour
 
         if (other.GetComponent<CoinsShop>())
         {
+            
             StartCoroutine(WaitFalseCoins());
+
+            
         }
 
         if (other.GetComponent<ShopNeft>())
