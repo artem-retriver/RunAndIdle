@@ -120,6 +120,11 @@ public class CharacterController : MonoBehaviour
 
     public void FixedUpdate()
     {
+        if (cameraCharacter[1].GetComponent<CameraController>().isIdleCamera == true)
+        {
+            
+        }
+
         if (isAlive == true)
         {
             moveController.Move();
@@ -148,9 +153,11 @@ public class CharacterController : MonoBehaviour
         {
             StartCoroutine(WaitIdleZone());
 
-            cameraCharacter[0].SetActive(true);
-            cameraCharacter[1].SetActive(false);
-            
+            cameraCharacter[1].GetComponent<CameraController>().isIdleCamera = true;
+            cameraCharacter[1].transform.DOMove(new Vector3(2.3f, 17.4f, 190.6f), 2f);
+            cameraCharacter[1].transform.DOLocalRotate(new Vector3(55, -11.382f, 0), 2f);
+            //cameraCharacter[1].SetActive(false);
+
 
             GetComponent<JoystickController>().enabled = true;
             other.gameObject.SetActive(false);
