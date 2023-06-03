@@ -27,7 +27,7 @@ public class CameraController : MonoBehaviour
         {
             camera.orthographic = true;
             camera.orthographicSize = 8;
-            Vector3 newPos = new(offSet.x + character.position.x + 1, character.position.y + 7.73f, offSet.z + character.position.z);
+            Vector3 newPos = new(offSet.x + character.position.x + 1, character.position.y + 7.73f, offSet.z + character.position.z + 0.7183f);
             //Vector3 newPos = new(offSet.x + character.position.x + 2.3f, offSet.y + character.position.y + 6.85f, offSet.z + character.position.z - 7.1813f);
             transform.position = newPos;
         }

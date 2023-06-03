@@ -156,6 +156,7 @@ public class CharacterController : MonoBehaviour
         {
             StartCoroutine(WaitIdleZone());
 
+            canvas[11].SetActive(false);
             cameraCharacter[1].GetComponent<CameraController>().isIdleCamera = true;
             cameraCharacter[1].transform.DOMove(new Vector3(1f, 7.73f, 213.86f), 1f);
             cameraCharacter[1].transform.DOLocalRotate(new Vector3(55, -11.382f, 0), 1f);
@@ -184,6 +185,14 @@ public class CharacterController : MonoBehaviour
             StartCoroutine(WaitLoseAllPopcorn());
             StartCoroutine(WaitLoseAllElectro());
             StartCoroutine(WaitLoseAllNeft());
+        }
+
+        if (other.GetComponent<ClotherMan>())
+        {
+            clotherCharacter[0].SetActive(false);
+            clotherCharacter[1].SetActive(true);
+            fvxObjects[7].SetActive(true);
+            other.gameObject.SetActive(false);
         }
     }
 
@@ -243,8 +252,7 @@ public class CharacterController : MonoBehaviour
         isFvxOnClotherShop = false;
         canvas[7].SetActive(false);
 
-        clotherCharacter[0].SetActive(false);
-        clotherCharacter[1].SetActive(true);
+
     }
 
     private IEnumerator WaitCloseFvxNeft()
